@@ -1,5 +1,4 @@
-
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
@@ -9,17 +8,79 @@ import { useToast } from "@/hooks/use-toast";
 
 const BotControl = () => {
   const [isActive, setIsActive] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
-  const toggleBot = () => {
-    const newState = !isActive;
-    setIsActive(newState);
-    
-    toast({
-      title: newState ? "Bot started" : "Bot stopped",
-      description: newState ? "Trading bot is now active" : "Trading bot has been deactivated",
-      variant: newState ? "default" : "destructive",
-    });
+  // ✅ Fetch current bot status on mount
+  useEffect(() => {
+    const fetchStatus = async () => {
+      const token = localStorage.getItem("token");
+      if (!token) return;
+
+      try {
+        const res = await fetch("http://localhost:3000/bot/status", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        const json = await res.json();
+        if (res.ok && json.status === 200) {
+          setIsActive(json.data?.isRunning || false); // assumes `isRunning` is in the API response
+        } else {
+          console.warn("Failed to fetch bot status:", json.message);
+        }
+      } catch (err) {
+        console.error("Error fetching bot status:", err);
+      }
+    };
+
+    fetchStatus();
+  }, []);
+
+  const toggleBot = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      toast({
+        title: "Unauthorized",
+        description: "Token not found in localStorage",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const action = !isActive ? "start" : "stop";
+    const url = `http://localhost:3000/bot/${action}`;
+
+    setIsLoading(true);
+    try {
+      const res = await fetch(url, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const json = await res.json();
+
+      if (res.ok && json.status === 200) {
+        setIsActive(!isActive);
+        toast({
+          title: action === "start" ? "Bot started" : "Bot stopped",
+          description: json.message || `Bot ${action}ed successfully`,
+          variant: action === "start" ? "default" : "destructive",
+        });
+      } else {
+        throw new Error(json.message || `Failed to ${action} bot`);
+      }
+    } catch (err: any) {
+      toast({
+        title: "Error",
+        description: err.message || `Could not ${action} bot`,
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -43,6 +104,7 @@ const BotControl = () => {
                 id="bot-active"
                 checked={isActive}
                 onCheckedChange={toggleBot}
+                disabled={isLoading}
               />
             </div>
           </div>
@@ -51,6 +113,7 @@ const BotControl = () => {
             onClick={toggleBot}
             variant={isActive ? "destructive" : "default"}
             className="w-full"
+            disabled={isLoading}
           >
             {isActive ? (
               <><CircleStop size={18} className="mr-2" /> Stop Bot</>

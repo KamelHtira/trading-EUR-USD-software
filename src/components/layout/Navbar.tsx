@@ -40,7 +40,7 @@ const Navbar = () => {
       {/* Desktop Navbar */}
       <nav className="hidden md:flex flex-col h-screen w-20 bg-sidebar fixed left-0 top-0 border-r border-border">
         <div className="flex items-center justify-center h-20">
-          <span className="text-xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">TB</span>
+          <span className="text-l font-bold bg-gradient-to-r from-white to-accent bg-clip-text text-transparent">Forex24</span>
         </div>
         <div className="flex-1 flex flex-col items-center gap-2 py-4">
           {navItems.map((item) => (

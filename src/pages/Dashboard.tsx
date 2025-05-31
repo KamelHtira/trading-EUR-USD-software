@@ -27,7 +27,7 @@ const Dashboard = () => {
     const fetchBalance = async () => {
       try {
          const token = localStorage.getItem("token");
-        const res = await fetch("http://localhost:3000/account/eurusd-data",{
+        const res = await fetch("http://localhost:3000/account/balance",{
           headers: {
             Authorization: `Bearer ${token}`,
           },

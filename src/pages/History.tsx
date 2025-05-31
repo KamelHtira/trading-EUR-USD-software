@@ -3,7 +3,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { 
+import { Button } from "@/components/ui/button"; // ✅ Import Button
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -18,6 +19,7 @@ export interface Activity {
   amount: number;
   price: number;
   total: number;
+  profit: number;
   isOpen: boolean;
   createdAt?: string;
 }
@@ -25,36 +27,36 @@ export interface Activity {
 const History = () => {
   const [activities, setActivities] = useState<Activity[]>([]);
 
-  useEffect(() => {
-    const fetchActivities = async () => {
-      try {
-        const token = localStorage.getItem("token");
-        const res = await fetch("http://localhost:3000/account/activities", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        const json = await res.json();
-        if (json.status === 200 && json.data) {
-          setActivities(json.data);
-        }
-      } catch (err) {
-        console.error("Failed to fetch activities:", err);
+  const fetchActivities = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch("http://localhost:3000/account/activities", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      const json = await res.json();
+      if (json.status === 200 && json.data) {
+        setActivities(json.data);
       }
-    };
+    } catch (err) {
+      console.error("Failed to fetch activities:", err);
+    }
+  };
 
+  useEffect(() => {
     fetchActivities();
   }, []);
 
   return (
     <div className="p-6">
       <h1 className="text-3xl font-bold mb-6">History & Analytics</h1>
-      
+
       <Tabs defaultValue="trades">
         <TabsList className="mb-6">
           <TabsTrigger value="trades">Trade History</TabsTrigger>
         </TabsList>
-        
+
         <TabsContent value="trades">
           <Card className="glass-card">
             <CardHeader className="flex flex-row justify-between items-center pb-2">
@@ -67,7 +69,6 @@ const History = () => {
                   <SelectContent>
                     <SelectItem value="all">All pairs</SelectItem>
                     <SelectItem value="eurusd">EUR/USD</SelectItem>
-                    {/* Add more if needed */}
                   </SelectContent>
                 </Select>
                 <Select defaultValue="7days">
@@ -81,8 +82,14 @@ const History = () => {
                     <SelectItem value="all">All time</SelectItem>
                   </SelectContent>
                 </Select>
+
+                {/* ✅ Refresh Button */}
+                <Button variant="outline" onClick={fetchActivities}>
+                  Refresh
+                </Button>
               </div>
             </CardHeader>
+
             <CardContent>
               <Table>
                 <TableHeader>
@@ -93,14 +100,15 @@ const History = () => {
                     <TableHead className="text-right">Price</TableHead>
                     <TableHead className="text-right">Amount</TableHead>
                     <TableHead className="text-right">Total</TableHead>
+                    <TableHead className="text-right">Profit</TableHead>
                     <TableHead className="text-right">Status</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {activities.map((activity) => {
                     const createdAt = activity.createdAt ? new Date(activity.createdAt) : null;
-                    const dateStr = createdAt ? new Date(createdAt).toLocaleDateString() : "--";
-                    const timeStr = createdAt ? new Date(createdAt).toLocaleTimeString() : "--";
+                    const dateStr = createdAt ? createdAt.toLocaleDateString() : "--";
+                    const timeStr = createdAt ? createdAt.toLocaleTimeString() : "--";
                     const isBuy = activity.positionSide === "LONG";
 
                     return (
@@ -111,16 +119,17 @@ const History = () => {
                         </TableCell>
                         <TableCell>{activity.pair}</TableCell>
                         <TableCell>
-                          <Badge 
-                            variant="outline" 
+                          <Badge
+                            variant="outline"
                             className={isBuy ? "border-profit text-profit" : "border-loss text-loss"}
                           >
                             {isBuy ? "buy" : "sell"}
                           </Badge>
                         </TableCell>
-                        <TableCell className="text-right">${activity.price}</TableCell>
-                        <TableCell className="text-right">{activity.amount}</TableCell>
-                        <TableCell className="text-right">${activity.total}</TableCell>
+                        <TableCell className="text-right">${activity.price?.toFixed(3) ?? "--"}</TableCell>
+                        <TableCell className="text-right">{activity.amount?.toFixed(3) ?? "--"}</TableCell>
+                        <TableCell className="text-right">${activity.total?.toFixed(3) ?? "--"}</TableCell>
+                        <TableCell className="text-right">${activity.profit?.toFixed(3) ?? "--"}</TableCell>
                         <TableCell className="text-right">
                           {activity.isOpen ? "Open" : "Closed"}
                         </TableCell>
