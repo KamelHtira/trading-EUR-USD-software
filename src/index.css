@@ -1,0 +1,92 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Base UI */
+    --background: 230 15% 10%;
+    --foreground: 220 20% 96%;
+
+    --card: 230 15% 14%;
+    --card-foreground: 220 20% 96%;
+
+    --popover: 230 15% 12%;
+    --popover-foreground: 220 20% 96%;
+
+    /* Brand Primary (Violet + Blue mix) */
+    --primary: 255 85% 65%;
+    --primary-foreground: 0 0% 100%;
+
+    /* Secondary (Dark Teal / Slate) */
+    --secondary: 215 32% 24%;
+    --secondary-foreground: 220 20% 96%;
+
+    /* Muted (Gray with hint of blue) */
+    --muted: 215 15% 25%;
+    --muted-foreground: 215 20% 70%;
+
+    /* Accent (Cyan) */
+    --accent: 192 85% 55%;
+    --accent-foreground: 220 20% 96%;
+
+    /* Destructive (Rich Red) */
+    --destructive: 0 70% 45%;
+    --destructive-foreground: 0 0% 100%;
+
+    /* Borders & Inputs */
+    --border: 220 14% 22%;
+    --input: 220 14% 22%;
+    --ring: 220 100% 70%;
+
+    --radius: 0.75rem;
+
+    /* Custom Trading Colors */
+    --profit: 140 70% 45%;      /* Greenish */
+    --loss: 355 80% 60%;        /* Vivid Red */
+
+    /* Chart UI */
+    --chart-bg: 230 15% 10%;
+    --chart-line: 205 90% 60%;
+    --chart-grid: 220 10% 25%;
+
+    /* Sidebar */
+    --sidebar-background: 230 20% 9%;
+    --sidebar-foreground: 220 20% 96%;
+    --sidebar-primary: 255 85% 65%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 220 14% 18%;
+    --sidebar-accent-foreground: 220 20% 96%;
+    --sidebar-border: 220 14% 18%;
+    --sidebar-ring: 205 90% 60%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+
+  ::-webkit-scrollbar {
+    @apply w-2 h-2;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-secondary;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-muted-foreground/50 rounded-full;
+  }
+
+  .glass-card {
+    @apply bg-card/70 backdrop-blur-sm border border-white/10 shadow-lg;
+  }
+
+  .trading-gradient {
+    @apply bg-gradient-to-tr from-primary/30 to-accent/20;
+  }
+}
